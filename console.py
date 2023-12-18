@@ -36,6 +36,25 @@ class HBNBCommand(cmd.Cmd):
         if not sys.__stdin__.isatty():
             print('(hbnb)')
 
+    def parse_key_value_pairs(self, args):
+        """Parses a list of strings into a dictionary."""
+        result_dict = {}
+        for arg in args:
+            if "=" in arg:
+                key, value = arg.split('=', 1)
+                if value[0] == value[-1] == '"':
+                    value = shlex.split(value)[0].replace('_', ' ')
+                else:
+                    try:
+                        value = int(value)
+                    except ValueError:
+                        try:
+                            value = float(value)
+                        except ValueError:
+                            continue
+                result_dict[key] = value
+        return result_dict
+
     def precmd(self, line):
         """Reformat command line for advanced command syntax.
 
@@ -115,7 +134,7 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, args):
-        """ Create an object of any class"""
+        """Create an object of any class with specified attributes."""
         if not args:
             print("** class name missing **")
             return
@@ -124,34 +143,16 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
             return
 
-        # Parse the arguments into key-value pairs
-        parse_list = []
-        for arguments in args_list[1:]:
-            parse = arguments.split('=')
-            print(parse)
-            parse_list.append(parse)
-
-        # Create a dictionary from the parsed key-value pairs
-        my_dict = dict(parse_list)
-
-        # Process the dictionary to convert values to appropriate types
-        new_dict = {}
-        for key, value in my_dict.items():
-            if value.isdigit():
-                new_dict[key] = int(value)
-            elif "." in value:
-                new_dict[key] = float(value)
-            else:
-                new_dict[key] = value.strip('"').replace("_", " ")
+        # Parse the arguments into key-value pairs using the helper function
+        key_value_pairs = self.parse_key_value_pairs(args_list[1:])
 
         # Create a new instance of the specified class
-        if new_dict == {}:
-            new_instance = HBNBCommand.classes[args_list[0]]()
-        else:
-            new_instance = HBNBCommand.classes[args_list[0]]()
-            for key, value in new_dict.items():
-                setattr(new_instance, key, value)
-                new_instance.save()
+        new_instance = HBNBCommand.classes[args_list[0]]()
+
+        # Set attributes using the parsed key-value pairs
+        for key, value in key_value_pairs.items():
+            setattr(new_instance, key, value)
+            new_instance.save()
 
         # Print the ID of the newly created instance
         print(new_instance.id)

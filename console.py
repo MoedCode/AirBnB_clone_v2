@@ -118,23 +118,12 @@ class HBNBCommand(cmd.Cmd):
         if not args:
             print("** class name missing **")
             return
-
-        class_name, *params = shlex.split(args)
-
-        if class_name not in HBNBCommand.classes:
+        elif args not in HBNBCommand.classes:
             print("** class doesn't exist **")
             return
-
-        # Parse parameters
-        param_dict = self.parse_params(params)
-
-        # Create an instance of the specified class with the parsed parameters
-        new_instance = HBNBCommand.classes[class_name](**param_dict)
-
-        # Print the ID of the newly created instance
+        new_instance = HBNBCommand.classes[args]()
+        storage.save()
         print(new_instance.id)
-
-        # Save changes to the storage
         storage.save()
 
     def help_create(self):

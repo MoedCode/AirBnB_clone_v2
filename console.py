@@ -115,18 +115,48 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
-        """ Create an object of any class"""
-        if not args:
-            print("** class name missing **")
-            return
-        elif args not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
-        new_instance = HBNBCommand.classes[args]()
-        storage.save()
-        print(new_instance.id)
-        storage.save()
+
+def do_create(self, args):
+    """ Create an object of any class"""
+    if not args:
+        print("** class name missing **")
+        return
+    args_list = args.split()
+    if args_list[0] not in HBNBCommand.classes:
+        print("** class doesn't exist **")
+        return
+
+    # Parse the arguments into key-value pairs
+    parse_list = []
+    for arguments in args_list[1:]:
+        parse = arguments.split('=')
+        parse_list.append(parse)
+
+    # Create a dictionary from the parsed key-value pairs
+    my_dict = dict(parse_list)
+
+    # Process the dictionary to convert values to appropriate types
+    new_dict = {}
+    for key, value in my_dict.items():
+        if value.isdigit():
+            new_dict[key] = int(value)
+        elif "." in value:
+            new_dict[key] = float(value)
+        else:
+            new_dict[key] = value.strip('"').replace("_", " ")
+
+    # Create a new instance of the specified class
+    if new_dict == {}:
+        new_instance = HBNBCommand.classes[args_list[0]]()
+    else:
+        new_instance = HBNBCommand.classes[args_list[0]]()
+        for key, value in new_dict.items():
+            setattr(new_instance, key, value)
+            new_instance.save()
+
+    # Print the ID of the newly created instance
+    print(new_instance.id)
+    storage.save()
 
     def help_create(self):
         """ Help information for the create method """

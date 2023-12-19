@@ -9,19 +9,13 @@ class FileStorage:
     __objects = {}
 
     def all(self, cls=None):
-        """
-        Retrieve the dictionary's stored in objects or filter by class.
-        methods parameters
-        cls (optional): If specified, filter objects by the given class.
-        Returns:
-        dict: dictionary contains objects stored in __objects or filtered by class.
-        """
+        """returns the dictionary __objects"""
         if cls is not None:
-            filt_dicts = {}
-            for object_key, object_instance in self.__objects.items():
-                if cls == object_instance.__class__ or cls == object_instance.__class__.__name__:
-                    filt_dicts[object_key] = object_instance
-            return filt_dicts
+            new_dict = {}
+            for key, value in self.__objects.items():
+                if cls == value.__class__ or cls == value.__class__.__name__:
+                    new_dict[key] = value
+            return new_dict
         return self.__objects
 
     def new(self, obj):

@@ -8,9 +8,21 @@ class FileStorage:
     __file_path = 'file.json'
     __objects = {}
 
-    def all(self):
-        """Returns a dictionary of models currently in storage"""
-        return FileStorage.__objects
+    def all(self, cls=None):
+        """
+        Retrieve the dictionary's stored in objects or filter by class.
+        methods parameters
+        cls (optional): If specified, filter objects by the given class.
+        Returns:
+        dict: dictionary contains objects stored in __objects or filtered by class.
+        """
+        if cls is not None:
+            filt_dicts = {}
+            for object_key, object_instance in self.__objects.items():
+                if cls == object_instance.__class__ or cls == object_instance.__class__.__name__:
+                    filt_dicts[object_key] = object_instance
+            return filt_dicts
+        return self.__objects
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -36,15 +48,15 @@ class FileStorage:
         from models.review import Review
 
         classes = {
-                    'BaseModel': BaseModel, 'User': User, 'Place': Place,
-                    'State': State, 'City': City, 'Amenity': Amenity,
-                    'Review': Review
-                  }
+            'BaseModel': BaseModel, 'User': User, 'Place': Place,
+            'State': State, 'City': City, 'Amenity': Amenity,
+            'Review': Review
+        }
         try:
             temp = {}
             with open(FileStorage.__file_path, 'r') as f:
                 temp = json.load(f)
                 for key, val in temp.items():
-                        self.all()[key] = classes[val['__class__']](**val)
+                    self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass

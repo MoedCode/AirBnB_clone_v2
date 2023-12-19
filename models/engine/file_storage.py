@@ -54,6 +54,13 @@ class FileStorage:
         with open(self.__file_path, 'w') as FILE:
             json.dump(serialized_objects, FILE)
 
+    def delete(self, obj=None):
+        """ Remove obj from the storage objects if it exist"""
+        if obj is not None:
+            object_key = obj.__class__.__name__ + '.' + obj.id
+            if object_key in self.__objects:
+                del self.__objects[object_key]
+
     def reload(self):
         """Loads storage dictionary from file"""
         from models.base_model import BaseModel

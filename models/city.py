@@ -1,14 +1,9 @@
 #!/usr/bin/python3
-"""Definition of the State class"""
-from model_state import Base
-from sqlalchemy import Column, Integer, String, MetaData, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
+""" City Module for HBNB project """
+from models.base_model import BaseModel
 
 
-class City(Base):
-    """class"""
-    __tablename__ = 'cities'
-    id = Column(Integer, primary_key=True, autoincrement=True,
-                nullable=False, unique=True)
-    name = Column(String(128), nullable=False)
-    state_id = Column(Integer, ForeignKey('states.id'), nullable=False)
+class City(BaseModel):
+    """ The city class, contains state ID and name """
+    state_id = ""
+    name = ""

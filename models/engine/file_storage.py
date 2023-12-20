@@ -9,13 +9,7 @@ class FileStorage:
     __objects = {}
 
     def all(self, cls=None):
-        """
-        Retrieve the dictionary's stored in objects or filter by class.
-        methods parameters
-        cls (optional): If specified, filter objects by the given class.
-        Returns:
-        dict: dictionary contains objects stored in __objects or filtered by class.
-        """
+        """Retrieve the dictionary's stored in objects or filter by class."""
         if cls is not None:
             filt_dicts = {}
             for object_key, object_instance in self.__objects.items():
@@ -24,24 +18,12 @@ class FileStorage:
             return filt_dicts
         return self.__objects
 
-    # def new(self, obj):
-    #     """Adds new object to storage dictionary"""
-    #     self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
-
     def new(self, obj):
-        """Adds new object to storage dictionary"""
+        """Adds new object to storage dictionary."""
         if obj is not None:
             new_obj_name = obj.__class__.__name__ + "." + obj.id
             self.__objects[new_obj_name] = obj
 
-    # def save(self):
-    #     """Saves storage dictionary to file"""
-    #     with open(FileStorage.__file_path, 'w') as f:
-    #         temp = {}
-    #         temp.update(FileStorage.__objects)
-    #         for key, val in temp.items():
-    #             temp[key] = val.to_dict()
-    #         json.dump(temp, f)
     def save(self):
         """Serializes and writes objects to the JSON file."""
         serialized_objects = {}
@@ -55,14 +37,14 @@ class FileStorage:
             json.dump(serialized_objects, FILE)
 
     def delete(self, obj=None):
-        """ Remove obj from the storage objects if it exist"""
+        """Remove obj from the storage objects if it exists."""
         if obj is not None:
             object_key = obj.__class__.__name__ + '.' + obj.id
             if object_key in self.__objects:
                 del self.__objects[object_key]
 
     def reload(self):
-        """Loads storage dictionary from file"""
+        """Loads storage dictionary from file."""
         from models.base_model import BaseModel
         from models.user import User
         from models.place import Place

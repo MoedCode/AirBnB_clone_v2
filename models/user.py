@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 """ holds class User"""
 from os import getenv
+import sqlalchemy
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 import models
@@ -25,7 +26,6 @@ class User(BaseModel, Base):
         last_name = ""
 
     def __init__(self, *args, **kwargs):
-        """Initializes user"""
         super().__init__(*args, **kwargs)
 
 # class User(BaseModel):

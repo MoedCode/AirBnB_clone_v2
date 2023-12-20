@@ -1,9 +1,11 @@
 #!/usr/bin/python3
 """ City Module for HBNB project """
-import models
-from models.base_model import BaseModel, Base
+from os import getenv
 from sqlalchemy import String, Column, ForeignKey
 from sqlalchemy.orm import relationship
+import models
+from models.base_model import BaseModel, Base
+from sqlalchemy import Column, String, ForeignKey
 
 from os import getenv
 
@@ -18,6 +20,9 @@ class State(BaseModel, Base):
 
     else:
         name = ""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     if getenv("HBNB_TYPE_STORAGE") != "db":
         @property

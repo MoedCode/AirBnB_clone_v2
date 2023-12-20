@@ -1,102 +1,84 @@
 #!/usr/bin/python3
-"""This module defines a base class for all models in our hbnb clone"""
-import uuid
-from datetime import datetime
+"""This module defines a class to manage DB Storage for hbnb clone"""
+from models.base_model import BaseModel, Base
+from models.city import City
+from models.state import State
+from models.user import User
+from models.review import Review
+from models.place import Place
+from models.amenity import Amenity
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, scoped_session
 from os import getenv
+import sqlalchemy as db
 
-from sqlalchemy import Column, String, DateTime, ForeignKey
-from sqlalchemy.ext.declarative import declarative_base
-import models
-import uuid
-from datetime import datetime
+# Dictionary mapping class names to their corresponding classes
+registered_classes = {"City": City, "State": State
+                      #, "Place": Place,
+                      # "Review": Review, "Amenity": Amenity, "User": User
+                      }
 
+class DBStorage:
+    """Manages DB Storage for hbnb clone"""
 
-if getenv("HBNB_TYPE_STORAGE") == 'db':
-    Base = declarative_base()
-else:
-    Base = object
+    # Database engine
+    __db_engine = None
+    # Database session
+    __db_session = None
 
+    def __init__(self):
+        """Initialize a DBStorage object"""
+        HBNB_MYSQL_USER = getenv('HBNB_MYSQL_USER')
+        HBNB_MYSQL_PWD = getenv('HBNB_MYSQL_PWD')
+        HBNB_MYSQL_HOST = getenv('HBNB_MYSQL_HOST')
+        HBNB_MYSQL_DB = getenv('HBNB_MYSQL_DB')
+        self.__db_engine = create_engine(
+            'mysql+mysqldb://{}:{}@{}/{}'. format(
+                HBNB_MYSQL_USER,
+                HBNB_MYSQL_PWD,
+                HBNB_MYSQL_HOST,
+                HBNB_MYSQL_DB),
+            pool_pre_ping=True)
+        if getenv('HBNB_ENV') == 'test':
+            Base.metadata.drop_all(self.__db_engine)
 
-class BaseModel:
-    """A base class for all hbnb models"""
-    id = Column(String(60), nullable=False, primary_key=True)
-    created_at = Column(DateTime, nullable=False, default=datetime.utcnow())
-    updated_at = Column(DateTime, nullable=False, default=datetime.utcnow())
-    # __tablename__ =
+    def reload(self):
+        """Reload data from the database"""
+        Base.metadata.create_all(self.__db_engine)
+        session_factory = sessionmaker(
+            bind=self.__db_engine, expire_on_commit=False)
+        Session = scoped_session(session_factory)
+        self.__db_session = Session()
 
-    def __init__(self, *args, **kwargs):
-        """Instatntiates a new model"""
-        if not kwargs:
-            from models import storage
-            self.id = str(uuid.uuid4())
-            self.created_at = datetime.now()
-            self.updated_at = datetime.now()
-            storage.new(self)
+    def new(self, instance):
+        """Add the object to the current database session"""
+        self.__db_session.add(instance)
+
+    def all(self, cls=None):
+        """Query on the current database session"""
+        result_dict = {}
+        if cls is None:
+            for class_name, class_type in registered_classes.items():
+                instances = self.__db_session.query(class_type).all()
+                for instance in instances:
+                    key = instance.__class__.__name__ + '.' + instance.id
+                    result_dict[key] = instance
         else:
-            kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
-                                                     '%Y-%m-%dT%H:%M:%S.%f')
-            kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
-                                                     '%Y-%m-%dT%H:%M:%S.%f')
-            del kwargs['__class__']
-            self.__dict__.update(kwargs)
+            instances = self.__db_session.query(cls).all()
+            for instance in instances:
+                key = instance.__class__.__name__ + '.' + instance.id
+                result_dict[key] = instance
+        return result_dict
 
-    def __str__(self):
-        """Returns a string representation of the instance"""
-        cls = (str(type(self)).split('.')[-1]).split('\'')[0]
-        return '[{}] ({}) {}'.format(cls, self.id, self.__dict__)
+    def delete(self, instance=None):
+        """Delete from the current database session if not None"""
+        if instance is not None:
+            self.__db_session.delete(instance)
 
     def save(self):
-        """Updates updated_at with current time when instance is changed"""
-        from models import storage
-        self.updated_at = datetime.now()
-        storage.save()
+        """Commit all changes of the current database session"""
+        self.__db_session.commit()
 
-    def to_dict(self):
-        """Convert instance into dict format"""
-        dictionary = {}
-        dictionary.update(self.__dict__)
-        dictionary.update({'__class__':
-                           (str(type(self)).split('.')[-1]).split('\'')[0]})
-        dictionary['created_at'] = self.created_at.isoformat()
-        dictionary['updated_at'] = self.updated_at.isoformat()
-        return dictionary
-
-
-# class BaseModel:
-#     """A base class for all hbnb models"""
-#     def __init__(self, *args, **kwargs):
-#         """Instatntiates a new model"""
-#         if not kwargs:
-#             from models import storage
-#             self.id = str(uuid.uuid4())
-#             self.created_at = datetime.now()
-#             self.updated_at = datetime.now()
-#             storage.new(self)
-#         else:
-#             kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
-#                                                      '%Y-%m-%dT%H:%M:%S.%f')
-#             kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
-#                                                      '%Y-%m-%dT%H:%M:%S.%f')
-#             del kwargs['__class__']
-#             self.__dict__.update(kwargs)
-
-#     def __str__(self):
-#         """Returns a string representation of the instance"""
-#         cls = (str(type(self)).split('.')[-1]).split('\'')[0]
-#         return '[{}] ({}) {}'.format(cls, self.id, self.__dict__)
-
-#     def save(self):
-#         """Updates updated_at with current time when instance is changed"""
-#         from models import storage
-#         self.updated_at = datetime.now()
-#         storage.save()
-
-#     def to_dict(self):
-#         """Convert instance into dict format"""
-#         dictionary = {}
-#         dictionary.update(self.__dict__)
-#         dictionary.update({'__class__':
-#                           (str(type(self)).split('.')[-1]).split('\'')[0]})
-#         dictionary['created_at'] = self.created_at.isoformat()
-#         dictionary['updated_at'] = self.updated_at.isoformat()
-#         return dictionary
+    def close(self):
+        """Call remove() method on the private session attribute"""
+        self.__db_session.remove()

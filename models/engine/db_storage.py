@@ -17,6 +17,7 @@ from models.user import User
 classes = {"Amenity": Amenity, "City": City,
            "Place": Place, "Review": Review, "State": State, "User": User}
 
+
 class DBStorage:
     """Interacts with the MySQL database"""
     __engine = None

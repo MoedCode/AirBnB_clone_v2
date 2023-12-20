@@ -21,10 +21,10 @@ class User(BaseModel, Base):
         reviews = relationship("Review", cascade='all, delete', backref="user")
 
     else:
-        email = ""
-        password = ""
         first_name = ""
         last_name = ""
+        email = ""
+        password = ""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -22,30 +22,6 @@ class FileStorage:
     __file_path = "file.json"
     __objects = {}
 
-    def all(self, cls=None):
-        """Returns the dictionary __objects or filtered by class"""
-        if cls is not None:
-            filtered_objects = {}
-            for key, value in self.__objects.items():
-                if cls == value.__class__ or cls == value.__class__.__name__:
-                    filtered_objects[key] = value
-            return filtered_objects
-        return self.__objects
-
-    def new(self, obj):
-        """Adds a new instance to __objects with key <instance class name>.id"""
-        if obj is not None:
-            key = obj.__class__.__name__ + "." + obj.id
-            self.__objects[key] = obj
-
-    def save(self):
-        """ __objects serialization to store in JSON file  __file_path"""
-        serialized_objects = {}
-        for key in self.__objects:
-            serialized_objects[key] = self.__objects[key].to_dict()
-        with open(self.__file_path, 'w') as f:
-            json.dump(serialized_objects, f)
-
     def reload(self):
         """JSON file deserialization the  store it  __objects """
         try:
@@ -56,6 +32,30 @@ class FileStorage:
                                               ["__class__"]](**json_obj[key])
         except:
             pass
+
+    def new(self, obj):
+        """Adds a new instance to __objects with key <instance class name>.id"""
+        if obj is not None:
+            key = obj.__class__.__name__ + "." + obj.id
+            self.__objects[key] = obj
+
+    def all(self, cls=None):
+        """Returns the dictionary __objects or filtered by class"""
+        if cls is not None:
+            filtered_objects = {}
+            for key, value in self.__objects.items():
+                if cls == value.__class__ or cls == value.__class__.__name__:
+                    filtered_objects[key] = value
+            return filtered_objects
+        return self.__objects
+
+    def save(self):
+        """ __objects serialization to store in JSON file  __file_path"""
+        serialized_objects = {}
+        for key in self.__objects:
+            serialized_objects[key] = self.__objects[key].to_dict()
+        with open(self.__file_path, 'w') as f:
+            json.dump(serialized_objects, f)
 
     def delete(self, obj=None):
         """delete obj from __objects if it’s inside"""

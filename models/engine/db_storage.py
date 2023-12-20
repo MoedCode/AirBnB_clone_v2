@@ -30,15 +30,21 @@ class DBStorage:
     def all(self, cls=None):
         """Queries all objects of a certain class from the database"""
         from models import classes
+
         objects = {}
         if cls:
+            print("if")
             query_result = self.__session.query(classes[cls]).all()
         else:
+            print("else")
+
             query_result = []
             for class_name in classes.values():
                 query_result.extend(self.__session.query(class_name).all())
 
         for obj in query_result:
+            print("for")
+
             key = '{}.{}'.format(obj.__class__.__name__, obj.id)
             objects[key] = obj
 

@@ -1,10 +1,14 @@
 #!/usr/bin/python3
 """This module defines a class to manage database storage for hbnb clone"""
 
+from models.base_model import Base
+import sys
 from os import getenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from models.base_model import Base
+
+# Add the path to the directory containing the models package to sys.path
+sys.path.append('/mnt/c/Users/Active/Desktop/Coding/AirBnB_clone_v2/')
 
 
 class DBStorage:

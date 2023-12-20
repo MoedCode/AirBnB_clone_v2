@@ -14,62 +14,66 @@ from models.review import Review
 from models.state import State
 from models.user import User
 
-classes = {"Amenity": Amenity, "City": City,
-           "Place": Place, "Review": Review, "State": State, "User": User}
+# Dictionary mapping class names to their corresponding classes
+registered_classes = {"Amenity": Amenity, "City": City,
+                      "Place": Place, "Review": Review, "State": State, "User": User}
 
 
 class DBStorage:
     """Interacts with the MySQL database"""
-    __engine = None
-    __session = None
+
+    # Database engine
+    __db_engine = None
+    # Database session
+    __db_session = None
 
     def __init__(self):
-        """Instantiate a DBStorage object"""
+        """Initialize a DBStorage object"""
         HBNB_MYSQL_USER = getenv('HBNB_MYSQL_USER')
         HBNB_MYSQL_PWD = getenv('HBNB_MYSQL_PWD')
         HBNB_MYSQL_HOST = getenv('HBNB_MYSQL_HOST')
         HBNB_MYSQL_DB = getenv('HBNB_MYSQL_DB')
         HBNB_ENV = getenv('HBNB_ENV')
-        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.
-                                      format(HBNB_MYSQL_USER,
-                                             HBNB_MYSQL_PWD,
-                                             HBNB_MYSQL_HOST,
-                                             HBNB_MYSQL_DB),
-                                      pool_pre_ping=True)
+        self.__db_engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.
+                                         format(HBNB_MYSQL_USER,
+                                                HBNB_MYSQL_PWD,
+                                                HBNB_MYSQL_HOST,
+                                                HBNB_MYSQL_DB),
+                                         pool_pre_ping=True)
         if HBNB_ENV == "test":
-            Base.metadata.drop_all(self.__engine)
+            Base.metadata.drop_all(self.__db_engine)
+
+    def reload(self):
+        """Reload data from the database"""
+        Base.metadata.create_all(self.__db_engine)
+        Session = scoped_session(sessionmaker(bind=self.__db_engine,
+                                              expire_on_commit=False))
+        self.__db_session = Session()
+
+    def new(self, instance):
+        """Add the object to the current database session"""
+        self.__db_session.add(instance)
 
     def all(self, cls=None):
         """Query on the current database session"""
-        new_dict = {}
-        for clss in classes:
-            if cls is None or cls is classes[clss] or cls is clss:
-                objs = self.__session.query(classes[clss]).all()
-                for obj in objs:
-                    key = obj.__class__.__name__ + '.' + obj.id
-                    new_dict[key] = obj
-        return new_dict
+        result_dict = {}
+        for class_name, class_type in registered_classes.items():
+            if cls is None or cls is class_type or cls is class_name:
+                instances = self.__db_session.query(class_type).all()
+                for instance in instances:
+                    key = instance.__class__.__name__ + '.' + instance.id
+                    result_dict[key] = instance
+        return result_dict
 
-    def new(self, obj):
-        """Add the object to the current database session"""
-        self.__session.add(obj)
+    def delete(self, instance=None):
+        """Delete from the current database session if not None"""
+        if instance is not None:
+            self.__db_session.delete(instance)
 
     def save(self):
         """Commit all changes of the current database session"""
-        self.__session.commit()
-
-    def delete(self, obj=None):
-        """Delete from the current database session obj if not None"""
-        if obj is not None:
-            self.__session.delete(obj)
-
-    def reload(self):
-        """Reloads data from the database"""
-        Base.metadata.create_all(self.__engine)
-        Session = scoped_session(sessionmaker(bind=self.__engine,
-                                              expire_on_commit=False))
-        self.__session = Session()
+        self.__db_session.commit()
 
     def close(self):
         """Call remove() method on the private session attribute"""
-        self.__session.remove()
+        self.__db_session.remove()

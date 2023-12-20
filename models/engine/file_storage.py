@@ -23,7 +23,7 @@ class FileStorage:
     __objects = {}
 
     def all(self, cls=None):
-        """returns the dictionary __objects"""
+        """Returns the dictionary __objects or filtered by class"""
         if cls is not None:
             filtered_objects = {}
             for key, value in self.__objects.items():
@@ -33,26 +33,27 @@ class FileStorage:
         return self.__objects
 
     def new(self, obj):
-        """sets in __objects the obj with key <obj class name>.id"""
+        """Adds a new instance to __objects with key <instance class name>.id"""
         if obj is not None:
             key = obj.__class__.__name__ + "." + obj.id
             self.__objects[key] = obj
 
     def save(self):
-        """serializes __objects to the JSON file (path: __file_path)"""
-        json_objects = {}
+        """ __objects serialization to store in JSON file  __file_path"""
+        serialized_objects = {}
         for key in self.__objects:
-            json_objects[key] = self.__objects[key].to_dict()
+            serialized_objects[key] = self.__objects[key].to_dict()
         with open(self.__file_path, 'w') as f:
-            json.dump(json_objects, f)
+            json.dump(serialized_objects, f)
 
     def reload(self):
-        """deserializes the JSON file to __objects"""
+        """JSON file deserialization the  store it  __objects """
         try:
-            with open(self.__file_path, 'r') as f:
-                jo = json.load(f)
-            for key in jo:
-                self.__objects[key] = classes[jo[key]["__class__"]](**jo[key])
+            with open(self.__file_path, 'r') as FILE:
+                json_obj = json.load(FILE)
+            for key in json_obj:
+                self.__objects[key] = classes[json_obj[key]
+                                              ["__class__"]](**json_obj[key])
         except:
             pass
 

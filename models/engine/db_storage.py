@@ -13,8 +13,9 @@ from os import getenv
 import sqlalchemy as db
 
 # Dictionary mapping class names to their corresponding classes
-classes = {"City": City, "State": State, "Place": Place, "Review": Review,
-           "Amenity": User, "User": Amenity
+classes = {"City": City, "State": State
+           # , "Place": Place,
+           # "Review": Review, "Amenity": Amenity, "User": User
            }
 
 

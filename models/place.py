@@ -26,7 +26,8 @@ class Place(BaseModel, Base):
     """Representation of Place"""
 
     # Check the storage type to determine whether to use a database table for Place
-    if models.storage_t == 'db':
+    if getenv("HBNB_TYPE_STORAGE") == 'db':
+
         __tablename__ = 'places'
         city_id = Column(String(60), ForeignKey('cities.id'), nullable=False)
         user_id = Column(String(60), ForeignKey('users.id'), nullable=False)

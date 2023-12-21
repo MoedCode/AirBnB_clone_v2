@@ -8,24 +8,18 @@ from models.review import Review
 from models.place import Place
 from models.amenity import Amenity
 from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.orm import sessionmaker, scoped_session
 from os import getenv
 import sqlalchemy as db
 
-# Dictionary mapping class names to their corresponding classes
-classes = {"Amenity": Amenity, "City": City,
-           "Place": Place, "Review": Review, "State": State, "User": User}
+classes = {"City": City, "State": State, "Place": Place, "Review": Review,
+           "Amenity": User, "User": Amenity
+           }
 
 
 class DBStorage:
-    """Manages DB Storage for hbnb clone"""
-
-    # Database engine & Database session
     __engine = None
     __session = None
-
-    def __init__(self):
-        """Initialize a DBStorage object"""
 
     def __init__(self):
         HBNB_MYSQL_USER = getenv('HBNB_MYSQL_USER')
@@ -42,42 +36,41 @@ class DBStorage:
         if getenv('HBNB_ENV') == 'test':
             Base.metadata.drop_all(self.__engine)
 
-    def reload(self):
-        """Reload data from the database"""
-        Base.metadata.create_all(self.__engine)
-        sess_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
-        Session = scoped_session(sess_factory)
-        self.__session = Session
+    def all(self, cls=None):
+        """Returns a dictionary of models currently in storage"""
+        my_dict = {}
+        if cls is None:
+            for obj in classes:
+                table = self.__session.query(classes[obj]).all()
+                for obj in table:
+                    key = f"{obj.__class__.__name__}.{obj.id}"
+                    my_dict[key] = obj
+            return my_dict
+        else:
+            table = self.__session.query(cls).all()
+        for obj in table:
+            key = f"{obj.__class__.__name__}.{obj.id}"
+            my_dict[key] = obj
+        return my_dict
 
     def new(self, obj):
-        """Add the object to the current database session"""
+        """Adds new object to storage dictionary"""
         self.__session.add(obj)
 
-    def all(self, cls=None):
-        """Query on the current database session"""
-        result_dict = {}
-        if cls is None:
-            for class_name, class_type in classes.items():
-                instances = self.session.query(class_type).all()
-                for instance in instances:
-                    key = instance.__class__.__name__ + '.' + instance.id
-                    result_dict[key] = instance
-        else:
-            instances = self.__db_session.query(cls).all()
-            for instance in instances:
-                key = instance.__class__.__name__ + '.' + instance.id
-                result_dict[key] = instance
-        return result_dict
-
-    def delete(self, obj=None):
-        """Delete from the current database session if not None"""
-        if obj is not None:
-            self.__session.delete(obj)
-
     def save(self):
-        """Commit all changes of the current database session"""
+        """commit all changes of the current database session"""
         self.__session.commit()
 
-    def close(self):
-        """Call remove() method on the private session attribute"""
-        self.__session.remove()
+    def delete(self, obj=None):
+        """delete from the current database session"""
+        if obj is None:
+            return
+        self.__session.delete(obj)
+
+    def reload(self):
+        """reload method"""
+        Base.metadata.create_all(self.__engine)
+        session_factory = sessionmaker(
+            bind=self.__engine, expire_on_commit=False)
+        Session = scoped_session(session_factory)
+        self.__session = Session()

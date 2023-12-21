@@ -36,7 +36,7 @@ class HBNBCommand(cmd.Cmd):
 
     def _key_value_parser(self, args):
         """Parse a list of strings into a dictionary"""
-        new_dict = {}
+        prasing_dict = {}
         for arg in args:
             if "=" in arg:
                 key, value = arg.split('=', 1)
@@ -50,8 +50,8 @@ class HBNBCommand(cmd.Cmd):
                             value = float(value)
                         except ValueError:
                             continue
-                new_dict[key] = value
-        return new_dict
+                prasing_dict[key] = value
+        return prasing_dict
 
     def do_create(self, arg):
         """Create a new instance of a class"""

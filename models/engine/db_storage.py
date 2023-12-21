@@ -13,19 +13,18 @@ from os import getenv
 import sqlalchemy as db
 
 # Dictionary mapping class names to their corresponding classes
-registered_classes = {"City": City, "State": State
-                      # , "Place": Place,
-                      # "Review": Review, "Amenity": Amenity, "User": User
-                      }
+classes = {"City": City, "State": State, "Place": Place, "Review": Review,
+           "Amenity": User, "User": Amenity
+           }
 
 
 class DBStorage:
     """Manages DB Storage for hbnb clone"""
 
     # Database engine
-    __db_engine = None
+    __engine = None
     # Database session
-    __db_session = None
+    __session = None
 
     def __init__(self):
         """Initialize a DBStorage object"""
@@ -45,21 +44,20 @@ class DBStorage:
 
     def reload(self):
         """Reload data from the database"""
-        Base.metadata.create_all(self.__db_engine)
-        session_factory = sessionmaker(
-            bind=self.__db_engine, expire_on_commit=False)
-        Session = scoped_session(session_factory)
-        self.__db_session = Session()
+        Base.metadata.create_all(self.__engine)
+        sess_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        Session = scoped_session(sess_factory)
+        self.__session = Session
 
-    def new(self, instance):
+    def new(self, obj):
         """Add the object to the current database session"""
-        self.__db_session.add(instance)
+        self.__db_session.add(obj)
 
     def all(self, cls=None):
         """Query on the current database session"""
         result_dict = {}
         if cls is None:
-            for class_name, class_type in registered_classes.items():
+            for class_name, class_type in classes.items():
                 instances = self.__db_session.query(class_type).all()
                 for instance in instances:
                     key = instance.__class__.__name__ + '.' + instance.id
@@ -71,9 +69,9 @@ class DBStorage:
                 result_dict[key] = instance
         return result_dict
 
-    def delete(self, instance=None):
+    def delete(self, obj=None):
         """Delete from the current database session if not None"""
-        if instance is not None:
+        if obj is not None:
             self.__db_session.delete(instance)
 
     def save(self):

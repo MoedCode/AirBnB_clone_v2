@@ -13,18 +13,22 @@ class User(BaseModel, Base):
     # Database columns if using SQLAlchemy
     if getenv("HBNB_TYPE_STORAGE") == 'db':
         __tablename__ = 'users'
-        email = Column(String(128), nullable=False)
-        password = Column(String(128), nullable=False)
         first_name = Column(String(128), nullable=True)
         last_name = Column(String(128), nullable=True)
+        email = Column(String(128), nullable=False)
+        password = Column(String(128), nullable=False)
         places = relationship("Place", cascade='all, delete', backref="user")
         reviews = relationship("Review", cascade='all, delete', backref="user")
 
     else:
-        email = ""
-        password = ""
         first_name = ""
         last_name = ""
+        email = ""
+        password = ""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
 # class User(BaseModel):
 #     """This class defines a user by various attributes"""
 #     email = ''

@@ -1,17 +1,15 @@
-#!/usr/bin/python3
-"""
-Defines the Place class
-"""
-
+#!/usr/bin/python
+""" Defines the Place class """
 from os import getenv
 import sqlalchemy
-from sqlalchemy import Column, String, Integer, Float, ForeignKey
+from sqlalchemy import Column, String, Integer, Float, ForeignKey, Table
 from sqlalchemy.orm import relationship
 import models
 from models.base_model import BaseModel, Base
 
 # Check the storage type to determine whether to use a database table for place_amenity relationship
 if getenv("HBNB_TYPE_STORAGE") == 'db':
+
     # Define the association table for the many-to-many relationship between Place and Amenity
     place_amenity = Table('place_amenity', Base.metadata,
                           Column('place_id', String(60),
@@ -29,6 +27,7 @@ class Place(BaseModel, Base):
 
     # Check the storage type to determine whether to use a database table for Place
     if getenv("HBNB_TYPE_STORAGE") == 'db':
+
         __tablename__ = 'places'
         city_id = Column(String(60), ForeignKey('cities.id'), nullable=False)
         user_id = Column(String(60), ForeignKey('users.id'), nullable=False)
@@ -40,10 +39,11 @@ class Place(BaseModel, Base):
         price_by_night = Column(Integer, nullable=False, default=0)
         latitude = Column(Float, nullable=True)
         longitude = Column(Float, nullable=True)
-        reviews = relationship("Review", backref="place",
-                               cascade="all, delete-orphan")
+        # Define the relationship with Review and Amenity
+        reviews = relationship("Review", backref="place")
         amenities = relationship("Amenity", secondary="place_amenity",
-                                 backref="place_amenities", viewonly=False)
+                                 backref="place_amenities",
+                                 viewonly=False)
     else:
         # Define attributes for non-database storage
         city_id = ""

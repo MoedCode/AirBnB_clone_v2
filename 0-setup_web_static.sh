@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/bash
 
 # Install Nginx if not already installed
 if ! command -v nginx &> /dev/null
@@ -8,7 +8,13 @@ then
 fi
 
 # Create necessary folders
-sudo mkdir -p /data/web_static/releases/test /data/web_static/shared
+# create directorys
+sudo mkdir -p /data/
+sudo mkdir -p /data/web_static/
+sudo mkdir -p /data/web_static/releases/
+sudo mkdir -p /data/web_static/shared/
+sudo mkdir -p /data/web_static/releases/test/
+sudo touch /data/web_static/releases/test/index.html
 
 # Create a fake HTML file
 echo "<html>

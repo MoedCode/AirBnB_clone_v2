@@ -1,32 +1,36 @@
-#!/usr/bin/env python3
-"""
-Fabric script that generates a .tgz archive from the contents
-of the web_static folder of your AirBnB Clone repo
-"""
-
+#!/usr/bin/python3
 from fabric.api import local
-from datetime import datetime
-import os
+from time import strftime
 
 
 def do_pack():
     """
-    Generates a .tgz archive from the contents of the web_static folder
+    Generates a compressed archive of the contents in the web_static folder.
+
+    Returns:
+        str: The path to the created archive, or None if an error occurs.
     """
+
+    # Generate a timestamp to make the archive file unique
+    filename = strftime("%Y%m%d%H%M%S")
+
     try:
-        # Create the 'versions' folder if it doesn't exist
+        # Create the 'versions' directory if it doesn't exist
         local("mkdir -p versions")
 
-        # Generate the name of the archive
-        now = datetime.utcnow()
-        archive_name = "web_static_{}{}{}{}{}{}.tgz".format(
-            now.year, now.month, now.day, now.hour, now.minute, now.second)
+        # Use tar to create a compressed archive of the web_static folder
+        local("tar -czvf versions/web_static_{}.tgz web_static/".format(filename))
 
-        # Compress the contents of the web_static folder
-        local("tar -cvzf versions/{} web_static".format(archive_name))
+        # Return the path to the created archive
+        return "versions/web_static_{}.tgz".format(filename)
 
-        # Return the archive path if the archive has been generated successfully
-        return "versions/{}".format(archive_name)
     except Exception as e:
-        # Return None if there was an error in generating the archive
+        # If an error occurs during the process, return None
         return None
+
+# Example usage:
+# archive_path = do_pack()
+# if archive_path:
+#     print(f"Archive created: {archive_path}")
+# else:
+#     print("Error creating archive.")

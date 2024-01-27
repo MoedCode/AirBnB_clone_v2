@@ -19,10 +19,11 @@ def HBNBpage():
     "Routing  HBNB Page"
     return "HBNB"
 
+
 @APP.route("/c/<str>")
 def display_Str(str):
     "display string argument in url"
-    str_tok = str.replace('_',' ')
+    str_tok = str.replace('_', ' ')
     return f"C {str_tok}"
 
 

@@ -32,7 +32,7 @@ def display_c(str):
 def display_py(str="is cool"):
     "display string argument in url"
     str_tok = str.replace('_', ' ')
-    return f"Python{str_tok}"
+    return f"Python {str_tok}"
 
 
 if __name__ == "__main__":

@@ -29,10 +29,10 @@ class FileStorage:
 
     def save(self):
         """Adds a new instance to __objects with key <instance class name>.id"""
-        serialized_obj = self.__objects
-        ser_obj_dict = {obj: serialized_obj[obj].to_dict()for obj in serialized_obj.keys()}
+        serialized_objects = self.__objects
+        objs_dict = {obj: serialized_objects[obj].to_dict()for obj in serialized_objects.keys()}
         with open(self.__file_path, mode='w') as file_json:
-            json.dump(ser_obj_dict, file_json)
+            json.dump(objs_dict, file_json)
 
     def reload(self):
         """Loads storage dictionary from file"""

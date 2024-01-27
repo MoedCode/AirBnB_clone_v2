@@ -21,7 +21,7 @@ def HBNBpage():
 
 
 @APP.route("/c/<str>")
-def display_Str(str):
+def display_c(str):
     "display string argument in url"
     str_tok = str.replace('_', ' ')
     return f"C {str_tok}"
@@ -29,7 +29,7 @@ def display_Str(str):
 
 @APP.route("/python")
 @APP.route("/python/<str>")
-def display_Str(str="is cool"):
+def display_py(str="is cool"):
     "display string argument in url"
     str_tok = str.replace('_', ' ')
     return f"Python{str_tok}"

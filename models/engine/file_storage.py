@@ -9,19 +9,19 @@ class FileStorage:
     __objects = {}
 
     def all(self, cls=None):
-        """Returns a dictionary of models currently in storage"""
+        """Returns the dictionary __objects or filtered by class"""
         cls_dict = {}
         if cls:
             if type(cls) is str:
                 cls = eval(cls)
-            for k, v in self.__objects.items():
-                if type(v) is cls:
-                    cls_dict[k] = v
+            for key, Value in self.__objects.items():
+                if type(Value) is cls:
+                    cls_dict[key] = Value
             return cls_dict
         return self.__objects
 
     def new(self, obj):
-        """Sets in __objects the obj with key <obj class name>.id"""
+        """Returns the dictionary __objects or filtered by class"""
         class_name = type(obj).__name__
         id = obj.id
         key = f"{class_name}.{id}"

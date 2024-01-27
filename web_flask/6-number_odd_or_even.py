@@ -50,9 +50,9 @@ def number_html(n):
 @APP.route("/number_odd_or_even/<int:n>")
 def odOrEvn(n):
     if n % 2 == 0:
-        str = f"Number: {n} is odd"
-    else:
         str = f"Number: {n} is even"
+    else:
+        str = f"Number: {n} is odd"
     return render_template('6-number_odd_or_even.html', str=str)
 
 

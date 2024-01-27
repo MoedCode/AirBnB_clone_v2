@@ -35,5 +35,11 @@ def display_py(str="is cool"):
     return f"Python {str_tok}"
 
 
+@APP.route("/number/<int:n>")
+def numberFg(n):
+    "print url int  argument"
+    return f"{n} is a number"
+
+
 if __name__ == "__main__":
     APP.run(host="0.0.0.0", port=5000)

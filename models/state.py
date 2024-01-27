@@ -9,7 +9,7 @@ import models
 
 
 class State(BaseModel, Base):
-    """ State class """
+    """ class for creating instance for States data """
     __tablename__ = "states"
     if getenv("HBNB_TYPE_STORAGE") == "db":
         name = Column(String(128), nullable=False)
@@ -18,5 +18,6 @@ class State(BaseModel, Base):
     elif getenv("HBNB_TYPE_STORAGE") != "db":
         @property
         def cities(self):
-            cities_list = list(models.storage.all(City).values())
-            return [city for city in cities_list if city.state_id == self.id]
+            "returns  LOAC kist of all cites "
+            LOAC = list(models.storage.all(City).values())
+            return [city for city in LOAC if city.state_id == self.id]

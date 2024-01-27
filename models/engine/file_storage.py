@@ -8,40 +8,31 @@ class FileStorage:
     __file_path = 'file.json'
     __objects = {}
 
-    def delete(self, obj=None):
-        """delete obj from __objects if it’s inside"""
-        if obj:
-            for delete_ob in self.__objects:
-                indexOfDot = delete_ob.index(".")
-                if obj.id == delete_ob[indexOfDot + 1:]:
-                    del (self.__objects[delete_ob])
-                    self.save()
-                    break
-
     def all(self, cls=None):
         """Returns a dictionary of models currently in storage"""
+        cls_dict = {}
         if cls:
-            result = {}
-            for objKey, objValue in self.__objects.items():
-                indexOfDot = objKey.index(".")
-                if objKey[:indexOfDot] == cls.__name__:
-                    result[objKey] = objValue
-            return result
-        else:
-            return FileStorage.__objects
+            if type(cls) is str:
+                cls = eval(cls)
+            for k, v in self.__objects.items():
+                if type(v) is cls:
+                    cls_dict[k] = v
+            return cls_dict
+        return self.__objects
 
     def new(self, obj):
-        """Adds new object to storage dictionary"""
-        self.all().update({obj.to_dict()['__class__'] + '.' + obj.id: obj})
+        """Sets in __objects the obj with key <obj class name>.id"""
+        class_name = type(obj).__name__
+        id = obj.id
+        key = f"{class_name}.{id}"
+        self.__objects[key] = obj
 
     def save(self):
-        """Saves storage dictionary to file"""
-        with open(FileStorage.__file_path, 'w') as f:
-            temp = {}
-            temp.update(FileStorage.__objects)
-            for key, val in temp.items():
-                temp[key] = val.to_dict()
-            json.dump(temp, f)
+        """serializes __objects to the JSON file (path: __file_path)"""
+        objs = self.__objects
+        objs_dict = {obj: objs[obj].to_dict()for obj in objs.keys()}
+        with open(self.__file_path, mode='w') as file_json:
+            json.dump(objs_dict, file_json)
 
     def reload(self):
         """Loads storage dictionary from file"""
@@ -53,11 +44,9 @@ class FileStorage:
         from models.amenity import Amenity
         from models.review import Review
 
-        classes = {
-                    'BaseModel': BaseModel, 'User': User, 'Place': Place,
-                    'State': State, 'City': City, 'Amenity': Amenity,
-                    'Review': Review
-                  }
+        classes = {'BaseModel': BaseModel, 'User': User, 'Place': Place,
+                   'State': State, 'City': City, 'Amenity': Amenity,
+                   'Review': Review}
         try:
             temp = {}
             with open(FileStorage.__file_path, 'r') as f:
@@ -67,6 +56,13 @@ class FileStorage:
         except FileNotFoundError:
             pass
 
-        def close(self):
-            """ calls reload() for deserializing the JSON file to objects."""
-            self.reload()
+    def delete(self, obj=None):
+        """Delete the objects"""
+        try:
+            del self.__objects["{}.{}".format(type(obj).__name__, obj.id)]
+        except (AttributeError, KeyError):
+            pass
+
+    def close(self):
+        """Call the reload method."""
+        self.reload()

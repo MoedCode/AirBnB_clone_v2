@@ -3,17 +3,7 @@
 Contains the FileStorage class
 """
 
-from models.base_model import BaseModel
-from models.user import User
-from models.place import Place
-from models.state import State
-from models.city import City
-from models.amenity import Amenity
-from models.review import Review
 
-classes = {'BaseModel': BaseModel, 'User': User, 'Place': Place,
-           'State': State, 'City': City, 'Amenity': Amenity,
-           'Review': Review}
 
 class FileStorage:
     """Crating file based database throw Serializes/deSerializes json obj"""
@@ -22,14 +12,27 @@ class FileStorage:
     __objects = {}
 
     def reload(self):
-        """JSON file deserialization the  store it  __objects """
+        """Loads storage dictionary from file"""
+        from models.base_model import BaseModel
+        from models.user import User
+        from models.place import Place
+        from models.state import State
+        from models.city import City
+        from models.amenity import Amenity
+        from models.review import Review
+
+        classes = {'BaseModel': BaseModel, 'User': User, 'Place': Place,
+                   'State': State, 'City': City, 'Amenity': Amenity,
+                   'Review': Review}
         try:
-            with open(self.__file_path, 'r') as FILE:
-                json_obj = json.load(FILE)
-            for key, Value in json_obj:
-                self.all()[key] = classes[ Value['__class__']](**Value)
+            temp = {}
+            with open(FileStorage.__file_path, 'r') as f:
+                temp = json.load(f)
+                for key, val in temp.items():
+                    self.all()[key] = classes[val['__class__']](**val)
         except FileNotFoundError:
             pass
+
 
     def new(self, obj):
         """Adds a new instance to __objects with key <instance class name>.id"""

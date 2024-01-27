@@ -1,38 +1,36 @@
 #!/usr/bin/env bash
-# Bash script that sets up web servers for the deployment of web_static
-
-# Update package lists and install Nginx
-sudo apt-get update
+# Write a Bash script that sets up your web servers for the deployment
+sudo apt-get -y update
+sudo apt-get -y upgrade
 sudo apt-get -y install nginx
-
-# Allow Nginx through the firewall
-sudo ufw allow 'Nginx HTTP'
-
-# Create necessary directories for web_static deployment
 sudo mkdir -p /data/web_static/releases/test/
-sudo touch /data/web_static/releases/test/index.html
+sudo mkdir -p /data/web_static/shared/
 
-# Create a simple HTML content for testing
-echo "<html>
-  <head>
-  </head>
-  <body>
-    Holberton School
-  </body>
-</html>" | sudo tee /data/web_static/releases/test/index.html
 
-# Create or update symbolic link to the latest deployment
-sudo ln -s -f /data/web_static/releases/test/ /data/web_static/current
+echo -e "Hello, Sarah" > index.html
+sudo mv index.html /data/web_static/releases/test/
+if [ -L /data/web_static/current ]; then
+    sudo rm /data/web_static/current
+fi
+sudo ln -sf /data/web_static/releases/test/ /data/web_static/current
 
-# Set ownership of the /data/ directory to the ubuntu user and group recursively
-sudo chown -R ubuntu:ubuntu /data/
+sudo chown -hR ubuntu:ubuntu /data/web_static/
+if ! grep -q "location \/test" /etc/nginx/sites-available/default; then
+    # Use a temporary file to store the new configuration
+    tmpfile=$(mktemp)
+    cat <<EOL > "$tmpfile"
+        location /test/ {
+            root /data/web_static/releases/;
+        }
+EOL
+    # Use sed to insert the contents of the temporary file after the 'listen' line
+    sudo sed -i "/    listen \[::\]:80 default_server;/r $tmpfile" /etc/nginx/sites-available/default
+    # Remove the temporary file
+    rm "$tmpfile"
+fi
 
-# Update Nginx configuration to serve /data/web_static/current/ as /hbnb_static
-nginx_config="/etc/nginx/sites-enabled/default"
-sudo sed -i '/listen 80 default_server/a location /hbnb_static { alias /data/web_static/current/;}' "$nginx_config"
+if ! grep -q "location \/hbnb_static" /etc/nginx/sites-available/default; then
+sudo sed -i '38i\\tlocation /hbnb_static/ {\n\t\talias /data/web_static/current/;\n\t}\n' /etc/nginx/sites-available/default
 
-# Restart Nginx to apply changes
+fi
 sudo service nginx restart
-
-# Exit successfully
-exit 0

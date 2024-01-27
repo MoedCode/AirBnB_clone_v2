@@ -1,26 +1,18 @@
 #!/usr/bin/python3
-"""
-Fabric script (1-pack_web_static.py) for generating a compressed archive
-from the contents of the web_static folder in an AirBnB Clone repository.
-The archive is stored in the 'versions' folder, following the naming convention
-web_static_<year><month><day><hour><minute><second>.tgz.
-"""
+"""Write a Fabric script that generates a .tgz archive"""
 from fabric.api import local
-from time import strftime
-from datetime import date
+from datetime import datetime
+from os.path import isdir
 
 
 def do_pack():
-    """Generates a .tgz archive of the web_static folder, stores it in 'versions',
-    and returns the archive path. Returns None in case of any errors.
-    """
-    FILE = strftime("%Y%m%d%H%M%S")
+    """Trying to do that"""
     try:
-        local("mkdir -p versions")
-        local("tar -czvf versions/web_static_{}.tgz web_static/"
-              .format(FILE))
-
-        return "versions/web_static_{}.tgz".format(FILE)
-
-    except Exception as e:
+        data = datetime.now().strftime("%Y%m%d%H%M%S")
+        if isdir("versions") is False:
+            local("mkdir versions")
+        file_name = "versions/web_static_{}.tgz".format(data)
+        local(f"tar -cvzf {file_name} web_static")
+        return file_name
+    except FileExistsError:
         return None

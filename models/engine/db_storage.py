@@ -76,3 +76,7 @@ class DBStorage:
             key = "{}.{}".format(obj.__class__.__name__, obj.id)
             my_dict[key] = obj
         return my_dict
+
+    def close(self):
+        """Closes the session"""
+        self.__session.remove()

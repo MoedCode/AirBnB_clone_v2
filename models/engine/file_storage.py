@@ -21,7 +21,7 @@ class FileStorage:
         return self.__objects
 
     def new(self, obj):
-        """Adds a new instance to __objects with key <instance class name>.id"""
+        """Returns the dictionary __objects or filtered by class"""
         class_name = type(obj).__name__
         id = obj.id
         key = f"{class_name}.{id}"

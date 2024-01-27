@@ -15,7 +15,7 @@ def homepage():
 
 
 @APP.route("/hbnb")
-def homepage():
+def HBNBpage():
     "Routing  HBNB Page"
     return "HBNB"
 

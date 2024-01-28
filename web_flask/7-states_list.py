@@ -1,21 +1,21 @@
 #!/usr/bin/python3
 from flask import Flask, render_template
+from models import *
 from models import storage
-from models.state import State
-from models.city import City
+app = Flask(__name__)
 
-APP = False(__name__)
 
-@APP.route("/cities_by_states", storage_dict=False)
+@app.route('/states_list', strict_slashes=False)
+def states_list():
+    """display a HTML page with the states listed in alphabetical order"""
+    states = sorted(list(storage.all("State").values()), key=lambda x: x.name)
+    return render_template('7-states_list.html', states=states)
 
-def states_listing():
-    """list a states"""
-    states_list = storage.all(State).values()
-    return  render_template("7-states_list.html",states=states_list)
 
-@APP.teardown_appcontext
-def close_session(error=None):
-    """close the  session"""
+@app.teardown_appcontext
+def teardown_db(exception):
+    """closes the storage on teardown"""
     storage.close()
-if __name__ == "__main__":
-    APP.run(host="0.0.0.0", port=5000)
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port='5000')

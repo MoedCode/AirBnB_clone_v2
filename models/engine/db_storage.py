@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""this is class file"""
+"""Defines a class for managing DB Storage for hbnb clone"""
 import os
 from sqlalchemy import create_engine
 from models.base_model import Base
@@ -11,69 +11,68 @@ from models.state import State
 from models.user import User
 from sqlalchemy.orm import sessionmaker, scoped_session
 
+classes = {"City": City, "State": State, "Place": Place, "Review": Review,
+           "Amenity": User, "User": Amenity
+           }
+
 
 class db_storage:
-    """this is class"""
+    """Database storage class"""
+
     __engine = None
     __session = None
 
     def __init__(self):
-        usr = os.getenv("HBNB_MYSQL_USER")
+        """Initialize database connection"""
+        user = os.getenv("HBNB_MYSQL_USER")
         host = os.getenv("HBNB_MYSQL_HOST")
         pwd = os.getenv("HBNB_MYSQL_PWD")
         db = os.getenv("HBNB_MYSQL_DB")
         env = os.getenv("HBNB_ENV", "none")
-        ex = f"mysql+mysqldb://{usr}:{pwd}@{host}/{db}"
-        self.__engine = create_engine(ex, pool_pre_ping=True)
+        connection_string = f"mysql+mysqldb://{user}:{pwd}@{host}/{db}"
+        self.__engine = create_engine(connection_string, pool_pre_ping=True)
         if env == "test":
             Base.metadata.drop_all(self.__engine)
 
-    def all(self, cls=None):
-        """return all or cls"""
-
+    def get_all(self, cls=None):
+        """Return all objects or objects of a specific class"""
         result = {}
         if cls is None:
             classes = [City, State, Amenity, Review, Place, User]
-            for classOne in classes:
-                var = self.__session.query(classOne).all()
-                for obj in var:
-                    objkey = f"{obj.__class__.__name__}.{obj.id}"
-                    result[objkey] = obj
+            for class_instance in classes:
+                objects = self.__session.query(class_instance).all()
+                for obj in objects:
+                    obj_key = f"{obj.__class__.__name__}.{obj.id}"
+                    result[obj_key] = obj
         else:
-            var = self.__session.query(cls).all()
-            for obj in var:
-                objkey = f"{obj.__class__.__name__}.{obj.id}"
-                result[objkey] = obj
+            objects = self.__session.query(cls).all()
+            for obj in objects:
+                obj_key = f"{obj.__class__.__name__}.{obj.id}"
+                result[obj_key] = obj
         return result
 
-    def new(self, obj):
-        """add the object"""
-
+    def add_object(self, obj):
+        """Add an object to the database session"""
         if obj is not None:
             self.__session.add(obj)
 
-    def save(self):
-        """commit all changes"""
-
+    def commit_changes(self):
+        """Commit all changes to the database"""
         self.__session.commit()
 
-    def delete(self, obj=None):
-        """delete from the db"""
+    def delete_object(self, obj=None):
+        """Delete an object from the database"""
         if obj is not None:
-            self.__session.query(type(obj)).filter
-            (type(obj).id == obj.id).delete()
+            self.__session.query(type(obj)).filter(
+                type(obj).id == obj.id).delete()
 
-    def reload(self):
-        """
-        create all tables in the database
-        create the current database session
-        """
-
+    def reload_database(self):
+        """Create tables and the current database session"""
         Base.metadata.create_all(self.__engine)
-        oursession = sessionmaker(expire_on_commit=False,
-                                  bind=self.__engine)
-        self.__session = scoped_session(oursession)()
+        session_maker = sessionmaker(
+            expire_on_commit=False, bind=self.__engine)
+        self.__session = scoped_session(session_maker)()
 
-    def close(self):
-        """ call close on private session. """
+    def close_session(self):
+        """Close the private database session"""
         self.__session.close()

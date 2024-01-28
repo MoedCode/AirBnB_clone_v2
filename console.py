@@ -268,7 +268,6 @@ class HBNBCommand(cmd.Cmd):
 # Command to test display_all_objects method:
 # do_display_all_objects <class_name_argument>
 # Example: do_display_all_objects Place
-
     def update_object(self, args):
         """ Update attributes of a specified object """
         class_name = instance_id = attribute_name = attribute_value = kwargs = ''
@@ -362,8 +361,8 @@ class HBNBCommand(cmd.Cmd):
 
         object_dict.save()  # Save updates to file
 
-    # Command to test the method
-    # update_object("User 123 {'name': 'John'}")
+# Command to test the method
+# update_object("User 123 {'name': 'John'}")
 
 
 if __name__ == "__main__":

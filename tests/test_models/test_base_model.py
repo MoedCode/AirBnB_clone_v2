@@ -3,7 +3,6 @@
 from models.base_model import BaseModel
 import unittest
 import datetime
-from uuid import UUID
 import json
 import os
 
@@ -22,10 +21,7 @@ class test_basemodel(unittest.TestCase):
         pass
 
     def tearDown(self):
-        try:
-            os.remove('file.json')
-        except:
-            pass
+        os.remove('file.json')
 
     def test_default(self):
         """ """

@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-""" Place Module for HBNB project """
+"""Defines the Place Module for the HBNB project"""
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String, ForeignKey, Integer, Float, Table
 from os import getenv
@@ -51,28 +51,28 @@ class Place(BaseModel, Base):
 
         @property
         def reviews(self):
-            """returns the list of reviews"""
+            """Returns reviewed places list"""
             from models import storage
 
-            result = []
+            riv_ist = []
             for value in storage.all(Review).values():
                 if value.place_id == self.id:
-                    result.append(value)
-            return result
+                    riv_ist.append(value)
+            return riv_ist
 
         @property
         def amenities(self):
-            """Returns the amenities of this Place"""
+            """Returns Places amenities"""
             from models import storage
-            amenities_of_place = []
+            place_sm_ist = []
             for value in storage.all(Amenity).values():
                 if value.id in self.amenity_ids:
-                    amenities_of_place.append(value)
-            return amenities_of_place
+                    place_sm_ist.append(value)
+            return place_sm_ist
 
         @amenities.setter
         def amenities(self, value):
-            """Adds an amenity to this Place"""
+            """Adds Places amenities"""
             if type(value) is Amenity:
                 if value.id not in self.amenity_ids:
                     self.amenity_ids.append(value.id)

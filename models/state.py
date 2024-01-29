@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship
 
 
 class State(BaseModel, Base):
-    """ State class """
+    """ States Class  """
 
     __tablename__ = 'states'
     if getenv("HBNB_TYPE_STORAGE") == "db":
@@ -20,12 +20,12 @@ class State(BaseModel, Base):
 
         @property
         def cities(self):
-            """returns the list of City"""
+            """returns cities List"""
             from models import storage
             from models.city import City
 
-            result = []
+            Result_list = []
             for value in storage.all(City).values():
                 if value.state_id == self.id:
-                    result.append(value)
-            return result
+                    Result_list.append(value)
+            return Result_list

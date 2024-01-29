@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""This module defines a base class for all models in our hbnb clone"""
+"""Defines a base class for all models in our hbnb clone"""
 import uuid
 from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base
@@ -16,7 +16,7 @@ class BaseModel:
     updated_at = Column(DateTime, default=datetime.utcnow(), nullable=False)
 
     def __init__(self, *args, **kwargs):
-        """Instatntiates a new model"""
+        """Instatntiates  model"""
 
         self.id = str(uuid.uuid4())
         if not kwargs:
@@ -38,29 +38,29 @@ class BaseModel:
                     setattr(self, key, value)
 
     def __str__(self):
-        """Returns a string representation of the instance"""
+        """Returns the instance string representation """
         cls = (str(type(self)).split('.')[-1]).split('\'')[0]
         return '[{}] ({}) {}'.format(cls, self.id, self.__dict__)
 
     def save(self):
-        """Updates updated_at with current time when instance is changed"""
+        """Updates updated_at attribute with current time"""
         from models import storage
         self.updated_at = datetime.now()
         storage.new(self)
         storage.save()
 
     def delete(self):
-        """deletes from storage"""
+        """deletes the instance from the storage"""
         FileStorage.delete(self)
 
     def to_dict(self):
-        """Convert instance into dict format"""
-        dictionary = {}
-        dictionary.update(self.__dict__)
-        dictionary.update({'__class__':
+        """Convert the instance to dict format"""
+        DICT = {}
+        DICT.update(self.__dict__)
+        DICT.update({'__class__':
                           (str(type(self)).split('.')[-1]).split('\'')[0]})
-        dictionary['created_at'] = self.created_at.isoformat()
-        dictionary['updated_at'] = self.updated_at.isoformat()
-        if dictionary.get('_sa_instance_state'):
-            del (dictionary['_sa_instance_state'])
-        return dictionary
+        DICT['created_at'] = self.created_at.isoformat()
+        DICT['updated_at'] = self.updated_at.isoformat()
+        if DICT.get('_sa_instance_state'):
+            del (DICT['_sa_instance_state'])
+        return DICT

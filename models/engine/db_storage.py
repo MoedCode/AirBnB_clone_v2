@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""this is class file"""
+"""Module for database storage handling"""
 import os
 from sqlalchemy import create_engine
 from models.base_model import Base
@@ -13,7 +13,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 
 
 class db_storage:
-    """this is class"""
+    """Class for managing database storage"""
     __engine = None
     __session = None
 
@@ -29,44 +29,44 @@ class db_storage:
             Base.metadata.drop_all(self.__engine)
 
     def all(self, cls=None):
-        """return all or cls"""
+        """Return all objects of a class or all classes."""
 
-        result = {}
+        Result_list = {}
         if cls is None:
             classes = [City, State, Amenity, Review, Place, User]
             for classOne in classes:
                 var = self.__session.query(classOne).all()
                 for obj in var:
-                    objkey = f"{obj.__class__.__name__}.{obj.id}"
-                    result[objkey] = obj
+                    Object_Key = f"{obj.__class__.__name__}.{obj.id}"
+                    Result_list[Object_Key] = obj
         else:
             var = self.__session.query(cls).all()
             for obj in var:
-                objkey = f"{obj.__class__.__name__}.{obj.id}"
-                result[objkey] = obj
-        return result
+                Object_Key = f"{obj.__class__.__name__}.{obj.id}"
+                Result_list[Object_Key] = obj
+        return Result_list
 
     def new(self, obj):
-        """add the object"""
+        """Add an object to the current database session."""
 
         if obj is not None:
             self.__session.add(obj)
 
     def save(self):
-        """commit all changes"""
+        """Commit all changes to the database."""
 
         self.__session.commit()
 
     def delete(self, obj=None):
-        """delete from the db"""
+        """Delete an object from the database."""
         if obj is not None:
             self.__session.query(type(obj)).filter
             (type(obj).id == obj.id).delete()
 
     def reload(self):
         """
-        create all tables in the database
-        create the current database session
+        create tables in the database
+        create current database session
         """
 
         Base.metadata.create_all(self.__engine)
@@ -75,5 +75,5 @@ class db_storage:
         self.__session = scoped_session(oursession)()
 
     def close(self):
-        """ call close on private session. """
+        """Close the private session."""
         self.__session.close()
